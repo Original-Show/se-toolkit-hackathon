@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Recipe Manager V2</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="header__title">Recipe Manager</h1>
+            <div class="header__actions">
+                <button class="btn btn--secondary" id="llmFindBtn">🎲 Find Random Recipe</button>
+                <button class="btn btn--primary" id="addRecipeBtn">+ Add Recipe</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Search Bar -->
+        <section class="search-bar">
+            <input type="text" id="searchInput" class="search-bar__input" placeholder="Search recipes...">
+            <button id="searchBtn" class="btn btn--secondary">Search</button>
+        </section>
+
+        <!-- Filter Controls -->
+        <section class="filter-controls" id="filterControls" style="display: none;">
+            <div class="filter-group">
+                <label class="filter-label">Filter by:</label>
+                <button class="btn btn--small btn--secondary" id="showFavoritesBtn">⭐ Favorites</button>
+                <button class="btn btn--small btn--secondary" id="showAllBtn">All Recipes</button>
+            </div>
+            <div class="filter-group" id="tagFilterGroup" style="display: none;">
+                <label class="filter-label">Tags:</label>
+                <select id="tagFilterSelect" class="filter-select">
+                    <option value="">All Tags</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Recipe List -->
+        <section class="recipe-list" id="recipeList">
+            <!-- Recipes will be rendered here -->
+        </section>
+
+        <!-- Shopping List Generator -->
+        <section class="shopping-list-generator">
+            <h2>Shopping List Generator</h2>
+            <p>Select recipes to generate a consolidated shopping list:</p>
+            <div id="recipeCheckboxes" class="shopping-list-generator__recipes"></div>
+            <button id="generateListBtn" class="btn btn--primary">Generate Shopping List</button>
+            <div id="shoppingListResult" class="shopping-list-result" style="display: none;"></div>
+        </section>
+
+        <!-- LLM API Key Management -->
+        <section class="llm-key-section">
+            <h2>LLM Integration</h2>
+            <p>Register your OpenAI API key to enable random recipe generation:</p>
+            <form id="llmKeyForm" class="form form--inline">
+                <div class="form__group">
+                    <input type="password" id="llmApiKey" class="form__input" placeholder="sk-..." required>
+                </div>
+                <button type="submit" class="btn btn--primary">Register Key</button>
+            </form>
+            <div id="llmKeyStatus" class="llm-key-status"></div>
+        </section>
+    </main>
+
+    <!-- Add/Edit Recipe Modal -->
+    <div class="modal" id="recipeModal" style="display: none;">
+        <div class="modal__content modal__content--wide">
+            <div class="modal__header">
+                <h2 id="modalTitle">Add Recipe</h2>
+                <button class="modal__close" id="closeModalBtn">&times;</button>
+            </div>
+            <form id="recipeForm" class="form">
+                <div class="form__group">
+                    <label for="recipeTitle" class="form__label">Recipe Title *</label>
+                    <input type="text" id="recipeTitle" class="form__input" required minlength="1" maxlength="255">
+                </div>
+                <div class="form__group">
+                    <label for="recipeDescription" class="form__label">Description</label>
+                    <textarea id="recipeDescription" class="form__textarea form__textarea--autoresize" rows="2" maxlength="2000"></textarea>
+                    <span class="form__hint">Max 2000 characters</span>
+                </div>
+                <div class="form__group">
+                    <label for="recipeInstructions" class="form__label">Instructions *</label>
+                    <textarea id="recipeInstructions" class="form__textarea form__textarea--autoresize" rows="5" required maxlength="10000"></textarea>
+                    <span class="form__hint">Max 10000 characters</span>
+                </div>
+
+                <!-- Tags Input -->
+                <div class="form__group">
+                    <label for="recipeTags" class="form__label">Tags (comma-separated)</label>
+                    <input type="text" id="recipeTags" class="form__input" placeholder="e.g., vegetarian, quick, italian">
+                    <span class="form__hint">Enter tags separated by commas</span>
+                </div>
+
+                <!-- Image Upload -->
+                <div class="form__group">
+                    <label class="form__label">Recipe Image</label>
+                    <div class="image-upload-area" id="imageUploadArea">
+                        <input type="file" id="recipeImageInput" class="image-upload-area__input" accept="image/*" hidden>
+                        <div class="image-upload-area__placeholder" id="imagePlaceholder">
+                            <span class="image-upload-area__icon">📷</span>
+                            <p>Click to upload an image</p>
+                            <span class="image-upload-area__hint">JPG, PNG, WebP, GIF (max 10MB)</span>
+                        </div>
+                        <img id="imagePreview" class="image-upload-area__preview" style="display: none;" alt="Preview">
+                        <button type="button" class="image-upload-area__remove" id="imageRemoveBtn" style="display: none;">&times;</button>
+                    </div>
+                </div>
+
+                <!-- Ingredients Section -->
+                <div class="form__group">
+                    <label class="form__label">Ingredients</label>
+                    <div id="ingredientsList" class="ingredients-list">
+                        <!-- Ingredient rows will be added here -->
+                    </div>
+                    <button type="button" id="addIngredientBtn" class="btn btn--secondary">+ Add Ingredient</button>
+                </div>
+
+                <div class="form__actions">
+                    <button type="button" id="cancelBtn" class="btn btn--secondary">Cancel</button>
+                    <button type="submit" class="btn btn--primary">Save Recipe</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Recipe Detail Modal -->
+    <div class="modal" id="recipeDetailModal" style="display: none;">
+        <div class="modal__content modal__content--large">
+            <div class="modal__header">
+                <h2 id="detailTitle"></h2>
+                <button class="modal__close" id="closeDetailBtn">&times;</button>
+            </div>
+            <div id="recipeDetail" class="recipe-detail">
+                <!-- Recipe details will be rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- LLM Recipe Modal -->
+    <div class="modal" id="llmModal" style="display: none;">
+        <div class="modal__content">
+            <div class="modal__header">
+                <h2>🎲 Find a Random Recipe</h2>
+                <button class="modal__close" id="closeLLMModalBtn">&times;</button>
+            </div>
+            <form id="llmForm" class="form">
+                <p class="llm-form-hint">Let AI generate a recipe idea for you. Optionally specify cuisine type or dietary needs.</p>
+                <div class="form__group">
+                    <label for="llmCuisine" class="form__label">Cuisine Type (optional)</label>
+                    <input type="text" id="llmCuisine" class="form__input" placeholder="e.g., Italian, Japanese, Mexican">
+                </div>
+                <div class="form__group">
+                    <label for="llmDietary" class="form__label">Dietary Requirement (optional)</label>
+                    <input type="text" id="llmDietary" class="form__input" placeholder="e.g., vegan, gluten-free, keto">
+                </div>
+                <div class="form__actions">
+                    <button type="button" id="llmCancelBtn" class="btn btn--secondary">Cancel</button>
+                    <button type="submit" class="btn btn--primary">Generate Recipe</button>
+                </div>
+            </form>
+            <div id="llmLoading" class="llm-loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Asking AI to create a recipe...</p>
+            </div>
+            <div id="llmResult" class="llm-result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
