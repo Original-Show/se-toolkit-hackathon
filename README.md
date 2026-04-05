@@ -107,12 +107,18 @@ se-toolkit-hackathon/
 ### Option 1: Docker Compose (Recommended)
 
 ```bash
-docker compose up --build
+cd /root/se-toolkit-hackathon
+docker compose up -d
 ```
 
-- Backend: http://localhost:8000
-- Frontend: http://localhost:3000
-- API Docs: http://localhost:8000/docs
+- Backend: http://10.93.25.161:8000
+- Frontend: http://10.93.25.161:3000
+- API Docs: http://10.93.25.161:8000/docs
+
+To check logs:
+```bash
+docker compose logs -f
+```
 
 ### Option 2: Local Development
 
@@ -141,9 +147,10 @@ python3 -m http.server 3000 --directory frontend
 ```
 
 **4. Access the app:**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- Interactive API docs: http://localhost:8000/docs
+
+    Frontend: http://10.93.25.161:3000
+    Backend API: http://10.93.25.161:8000
+    Interactive API docs: http://10.93.25.161:8000/docs
 
 ## Running Tests
 
