@@ -78,16 +78,16 @@
                 <div class="form__group">
                     <label for="recipeTitle" class="form__label">Recipe Title *</label>
                     <input type="text" id="recipeTitle" class="form__input" required minlength="1" maxlength="255">
+                    <span class="form__hint">Max 255 characters</span>
                 </div>
                 <div class="form__group">
                     <label for="recipeDescription" class="form__label">Description</label>
-                    <textarea id="recipeDescription" class="form__textarea form__textarea--autoresize" rows="2" maxlength="2000"></textarea>
-                    <span class="form__hint">Max 2000 characters</span>
+                    <textarea id="recipeDescription" class="form__textarea form__textarea--autoresize" rows="2"></textarea>
                 </div>
                 <div class="form__group">
                     <label for="recipeInstructions" class="form__label">Instructions *</label>
-                    <textarea id="recipeInstructions" class="form__textarea form__textarea--autoresize" rows="5" required maxlength="10000"></textarea>
-                    <span class="form__hint">Max 10000 characters</span>
+                    <textarea id="recipeInstructions" class="form__textarea form__textarea--autoresize" rows="5" required></textarea>
+                    <span class="form__hint">Required — describe how to cook this recipe</span>
                 </div>
 
                 <!-- Tags Input -->
@@ -115,7 +115,7 @@
                     <div class="cooking-time-input">
                         <div class="cooking-time-input__field">
                             <label>Days</label>
-                            <input type="number" id="cookingDays" min="0" placeholder="0">
+                            <input type="number" id="cookingDays" min="0" max="365" placeholder="0">
                         </div>
                         <span class="cooking-time-input__separator">:</span>
                         <div class="cooking-time-input__field">

@@ -128,12 +128,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${recipe.tags.map(tag => `<span class="recipe-tag" data-tag="${escapeHtml(tag.name)}">${escapeHtml(tag.name)}</span>`).join('')}
                         </div>
                     ` : ''}
-                    <div class="recipe-card__meta-row" style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;font-size:0.75rem;color:var(--color-text-light);">
-                        <div style="display:flex;align-items:center;gap:0.5rem;">
-                            <span class="difficulty-stars">${renderDifficultyStars(recipe.difficulty || 1)}</span>
-                            <span>⏱ ${ct}</span>
+                    <div class="recipe-card__meta-row" style="display:flex;justify-content:space-between;align-items:center;margin-top:0.75rem;font-size:0.85rem;color:var(--color-text);">
+                        <div style="display:flex;align-items:center;gap:0.75rem;">
+                            <span class="difficulty-stars" style="font-size:1.25rem;">${renderDifficultyStars(recipe.difficulty || 1)}</span>
+                            <span style="font-size:0.95rem;font-weight:600;">⏱ ${ct}</span>
                         </div>
-                        <span>${recipe.ingredients.length} ing. · ${formatDate(recipe.updated_at)}</span>
+                        <span style="font-size:0.8rem;">${recipe.ingredients.length} ing. · ${formatDate(recipe.updated_at)}</span>
                     </div>
                 </div>`;
         }).join('');
@@ -259,9 +259,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (r.image_url) h += `<img src="${r.image_url}" class="recipe-detail__image">`;
         if (r.description) h += `<p>${escapeHtml(r.description)}</p>`;
         if (r.tags?.length) h += `<div class="recipe-tags">${r.tags.map(t => `<span class="recipe-tag">${escapeHtml(t.name)}</span>`).join('')}</div>`;
-        h += `<div style="display:flex;gap:1rem;margin:0.5rem 0;font-size:0.875rem;color:var(--color-text-light);">`;
-        h += `<span>Difficulty: <span class="difficulty-stars">${renderDifficultyStars(r.difficulty||1)}</span></span>`;
-        h += `<span>⏱ ${formatCookingTime(r.cooking_time_minutes)}</span>`;
+        h += `<div style="display:flex;gap:1.5rem;margin:0.75rem 0;font-size:1rem;">`;
+        h += `<span style="font-weight:600;">Difficulty:</span> <span class="difficulty-stars" style="font-size:1.35rem;">${renderDifficultyStars(r.difficulty||1)}</span>`;
+        h += `<span style="font-weight:600;">⏱ ${formatCookingTime(r.cooking_time_minutes)}</span>`;
         h += `</div>`;
         h += `<h3>Instructions</h3><pre>${escapeHtml(r.instructions)}</pre>`;
         h += `<h3>Ingredients</h3><ul class="recipe-checklist">`;
@@ -325,9 +325,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const row = document.createElement('div');
         row.className = 'ingredient-row';
         row.innerHTML = `
-            <input type="text" placeholder="Name" value="${escapeHtml(data.name||'')}" required>
+            <input type="text" placeholder="Name" value="${escapeHtml(data.name||'')}" required maxlength="255">
             <input type="number" placeholder="Qty" step="0.01" min="0.01" value="${data.quantity||''}" required>
-            <input type="text" placeholder="Unit" value="${escapeHtml(data.unit||'')}" required>
+            <input type="text" placeholder="Unit" value="${escapeHtml(data.unit||'')}" required maxlength="50">
             <button type="button" class="ingredient-bookmark-btn" data-bookmarked="${data.is_bookmarked||false}">${data.is_bookmarked?'★':'☆'}</button>
             <button type="button" class="ingredient-remove">&times;</button>`;
 
@@ -380,7 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
         recipeListEl.innerHTML = '<div class="loading">Loading...</div>';
         try {
             recipes = await api.getRecipes();
-            renderRecipeList(recipes, false);
+            renderRecipeList(recipes, true);
+            renderShoppingListCheckboxes();
             await loadTags();
             filterControls.style.display = 'block';
         } catch (e) {
@@ -431,8 +432,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function toggleRecipeFavorite(id) {
         try {
+            // Animate the star first
+            const card = recipeListEl.querySelector(`.recipe-card[data-id="${id}"]`);
+            if (card) {
+                card.style.transition = 'opacity 0.25s ease';
+                card.style.opacity = '0.4';
+            }
+
             await api.toggleRecipeFavorite(id);
             await loadRecipes();
+
             if (currentFilter === 'favorites') { renderRecipeList(await api.getFavoriteRecipes()); }
             else if (currentFilter && currentFilter !== 'all') { renderRecipeList(await api.getRecipesByTag(currentFilter)); }
         } catch (e) { alert(`Error: ${e.message}`); }
@@ -481,6 +490,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     searchBtn.addEventListener('click', handleSearch);
     searchInput.addEventListener('keypress', e => { if (e.key === 'Enter') { clearTimeout(searchDebounceTimer); handleSearch(); } });
+
+    // ===== Shopping List Checkboxes =====
+    function renderShoppingListCheckboxes() {
+        const el = document.getElementById('recipeCheckboxes');
+        if (!el) return;
+        el.innerHTML = recipes.map(r => `
+            <label><input type="checkbox" value="${r.id}"> ${escapeHtml(r.title)}</label>
+        `).join('');
+    }
 
     // ===== Shopping List with Recipe Groups =====
     async function handleGenerateShoppingList() {
