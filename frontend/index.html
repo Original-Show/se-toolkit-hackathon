@@ -11,7 +11,7 @@
         <div class="container">
             <h1 class="header__title">Recipe Manager</h1>
             <div class="header__actions">
-                <button class="btn btn--secondary" id="llmFindBtn">🎲 Find Random Recipe</button>
+                <button class="btn btn--secondary" id="aiToolsBtn">🤖 AI Tools</button>
                 <button class="btn btn--primary" id="addRecipeBtn">+ Add Recipe</button>
             </div>
         </div>
@@ -176,33 +176,71 @@
         </div>
     </div>
 
-    <!-- LLM Recipe Modal -->
-    <div class="modal" id="llmModal" style="display: none;">
-        <div class="modal__content">
+    <!-- AI Tools Modal -->
+    <div class="modal" id="aiModal" style="display: none;">
+        <div class="modal__content modal__content--wide">
             <div class="modal__header">
-                <h2>🎲 Find a Random Recipe</h2>
-                <button class="modal__close" id="closeLLMModalBtn">&times;</button>
+                <h2>🤖 AI Cooking Assistant</h2>
+                <button class="modal__close" id="closeAIModalBtn">&times;</button>
             </div>
-            <form id="llmForm" class="form">
-                <p class="llm-form-hint">Let AI generate a recipe idea for you. Optionally specify cuisine type or dietary needs.</p>
+
+            <!-- Tabs -->
+            <div class="ai-tabs">
+                <button class="ai-tab active" data-tab="steps">📋 Structure Steps</button>
+                <button class="ai-tab" data-tab="grammar">✏️ Grammar Check</button>
+                <button class="ai-tab" data-tab="units">📏 Unit Check</button>
+            </div>
+
+            <!-- Tab: Structure Cooking Steps -->
+            <div class="ai-tab-content" id="aiTabSteps">
+                <p class="ai-form-hint">Paste raw recipe text and get structured, numbered cooking steps with grammar and unit corrections.</p>
                 <div class="form__group">
-                    <label for="llmCuisine" class="form__label">Cuisine Type (optional)</label>
-                    <input type="text" id="llmCuisine" class="form__input" placeholder="e.g., Italian, Japanese, Mexican">
-                </div>
-                <div class="form__group">
-                    <label for="llmDietary" class="form__label">Dietary Requirement (optional)</label>
-                    <input type="text" id="llmDietary" class="form__input" placeholder="e.g., vegan, gluten-free, keto">
+                    <textarea id="aiStepsText" class="form__input" rows="6" placeholder="Paste your recipe text here..." style="min-height:120px;"></textarea>
                 </div>
                 <div class="form__actions">
-                    <button type="button" id="llmCancelBtn" class="btn btn--secondary">Cancel</button>
-                    <button type="submit" class="btn btn--primary">Generate Recipe</button>
+                    <button class="btn btn--secondary" id="aiStepsClearBtn">Clear</button>
+                    <button class="btn btn--primary" id="aiStepsBtn">Structure Steps</button>
                 </div>
-            </form>
-            <div id="llmLoading" class="llm-loading" style="display: none;">
-                <div class="spinner"></div>
-                <p>Asking AI to create a recipe...</p>
+                <div id="aiStepsLoading" class="llm-loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Analyzing recipe...</p>
+                </div>
+                <div id="aiStepsResult" class="llm-result" style="display: none;"></div>
             </div>
-            <div id="llmResult" class="llm-result" style="display: none;"></div>
+
+            <!-- Tab: Grammar Check -->
+            <div class="ai-tab-content" id="aiTabGrammar" style="display: none;">
+                <p class="ai-form-hint">Paste any text to check for grammar, spelling, and punctuation errors.</p>
+                <div class="form__group">
+                    <textarea id="aiGrammarText" class="form__input" rows="6" placeholder="Paste text to check..." style="min-height:120px;"></textarea>
+                </div>
+                <div class="form__actions">
+                    <button class="btn btn--secondary" id="aiGrammarClearBtn">Clear</button>
+                    <button class="btn btn--primary" id="aiGrammarBtn">Check Grammar</button>
+                </div>
+                <div id="aiGrammarLoading" class="llm-loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Checking grammar...</p>
+                </div>
+                <div id="aiGrammarResult" class="llm-result" style="display: none;"></div>
+            </div>
+
+            <!-- Tab: Unit Check -->
+            <div class="ai-tab-content" id="aiTabUnits" style="display: none;">
+                <p class="ai-form-hint">Paste an ingredient list to check for incorrect cooking units.</p>
+                <div class="form__group">
+                    <textarea id="aiUnitsText" class="form__input" rows="6" placeholder="e.g., 1 kg milk, 100 ml flour, 2 pcs eggs..." style="min-height:120px;"></textarea>
+                </div>
+                <div class="form__actions">
+                    <button class="btn btn--secondary" id="aiUnitsClearBtn">Clear</button>
+                    <button class="btn btn--primary" id="aiUnitsBtn">Check Units</button>
+                </div>
+                <div id="aiUnitsLoading" class="llm-loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Checking units...</p>
+                </div>
+                <div id="aiUnitsResult" class="llm-result" style="display: none;"></div>
+            </div>
         </div>
     </div>
 
