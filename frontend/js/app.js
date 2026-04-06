@@ -457,7 +457,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function filterByFavorites() {
         currentFilter = 'favorites';
-        renderRecipeList(await api.getFavoriteRecipes());
+        const favs = await api.getFavoriteRecipes();
+        renderRecipeList(favs, false);
         showFavoritesBtn.classList.remove('btn--secondary');
         showFavoritesBtn.classList.add('btn--primary');
         showAllBtn.classList.remove('btn--primary');
@@ -467,7 +468,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function filterByTag(name) {
         currentFilter = name;
-        renderRecipeList(await api.getRecipesByTag(name));
+        const tagRecipes = await api.getRecipesByTag(name);
+        renderRecipeList(tagRecipes, false);
         tagFilterSelect.value = name;
         showFavoritesBtn.classList.remove('btn--primary');
         showFavoritesBtn.classList.add('btn--secondary');
@@ -477,7 +479,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function showAllRecipes() {
         currentFilter = 'all';
-        await loadRecipes();
+        recipes = await api.getRecipes();
+        renderShoppingListCheckboxes();
+        await loadTags();
+        renderRecipeList(recipes, false);
         showFavoritesBtn.classList.remove('btn--primary');
         showFavoritesBtn.classList.add('btn--secondary');
         showAllBtn.classList.remove('btn--secondary');
@@ -569,16 +574,17 @@ document.addEventListener('DOMContentLoaded', () => {
             shoppingListResult.innerHTML = html;
 
             // Synced checkbox logic
-            const checkboxes = shoppingListResult.querySelectorAll('.shopping-recipe-group__ingredient');
-            checkboxes.forEach(li => {
+            const allItems = Array.from(shoppingListResult.querySelectorAll('.shopping-recipe-group__ingredient'));
+            allItems.forEach(li => {
                 const cb = li.querySelector('input[type="checkbox"]');
-                const key = li.dataset.key;
+                const key = li.getAttribute('data-key');
 
                 cb.addEventListener('change', () => {
                     li.classList.toggle('checked', cb.checked);
-                    // Sync all other items with the same key
-                    shoppingListResult.querySelectorAll(`[data-key="${key}"]`).forEach(other => {
-                        if (other !== li) {
+                    // Sync ALL other items with the same key
+                    allItems.forEach(other => {
+                        if (other === li) return;
+                        if (other.getAttribute('data-key') === key) {
                             const otherCb = other.querySelector('input[type="checkbox"]');
                             if (otherCb) {
                                 otherCb.checked = cb.checked;

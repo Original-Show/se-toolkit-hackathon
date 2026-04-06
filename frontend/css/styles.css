@@ -76,13 +76,15 @@ body {
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.15s ease;
+    transition: background-color 0.15s ease;
     white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .btn--primary {
     background-color: var(--color-primary);
     color: white;
+    will-change: background-color;
 }
 
 .btn--primary:hover {
@@ -92,6 +94,7 @@ body {
 .btn--secondary {
     background-color: var(--color-secondary);
     color: white;
+    will-change: background-color;
 }
 
 .btn--secondary:hover {
@@ -119,6 +122,8 @@ body {
 .btn--small {
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
+    min-width: 80px;
+    text-align: center;
 }
 
 /* ===== Search Bar ===== */
@@ -147,6 +152,7 @@ body {
     display: grid;
     gap: 1rem;
     margin-bottom: 2rem;
+    min-height: 100px;
 }
 
 .recipe-card {
@@ -652,7 +658,7 @@ body {
     gap: 1rem;
     margin-bottom: 1rem;
     flex-wrap: wrap;
-    align-items: flex-end;
+    align-items: center;
 }
 
 .filter-group {
@@ -1000,6 +1006,10 @@ body {
     text-align: center;
     padding: 1rem;
     color: var(--color-text-light);
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ===== Responsive ===== */
