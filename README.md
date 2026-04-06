@@ -250,4 +250,4 @@ bash scripts/test.sh
 
 ## License
 
-MIT
+Apache License 2.0
