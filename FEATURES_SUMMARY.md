@@ -1,275 +1,214 @@
-# Recipe Manager - New Features Summary
+# Recipe Manager - Features Documentation
 
-## ✅ Implemented Features
+## Overview
 
-### 1. **Responsive Design for Multiple Screen Sizes**
-- **Mobile (≤640px):**
-  - Stacked layout for header and controls
-  - Full-width ingredient rows with stacked inputs
-  - Optimized modal widths (95% viewport)
-  - Touch-friendly button sizes
-  - Collapsed filter controls
+The Recipe Manager is a web-based application for storing, organizing, and managing recipes. It provides structured ingredient entry, shopping list generation, and AI-powered recipe discovery.
 
-- **Tablet (641px-1024px):**
-  - Wider modals (800px max-width)
-  - Adjusted container padding
-  - Balanced grid layouts
+## Implemented Features
 
-- **Desktop (>1024px):**
-  - Full-featured layout with 900px wide recipe modal
-  - Multi-column ingredient rows (name, quantity, unit, bookmark, delete)
-  - Side-by-side filter controls
+### 1. Responsive Design for Multiple Screen Sizes
 
-- **Viewport Optimization:**
-  - Updated meta viewport tag with `maximum-scale=5.0` for accessibility
-  - All interactive elements are touch-friendly
-  - Proper scaling on all device types
+The application adapts its layout based on screen size to ensure usability across devices.
 
-### 2. **Wider Add/Edit Recipe Modal**
-- Changed modal max-width from 500px to **900px**
-- Ingredient rows now have 5 columns:
+**Mobile (up to 640px):**
+- Stacked layout for header and controls
+- Full-width ingredient rows with vertically stacked inputs
+- Modal widths optimized to 95% of viewport
+- Touch-friendly button sizing
+- Collapsed filter controls
+
+**Tablet (641px to 1024px):**
+- Modal width increased to 800px
+- Adjusted container padding
+- Balanced grid layouts
+
+**Desktop (above 1024px):**
+- Full-featured layout with 900px wide recipe modal
+- Multi-column ingredient rows displaying name, quantity, unit, bookmark, and delete controls
+- Side-by-side filter controls
+
+**Viewport Configuration:**
+- Meta viewport tag set with maximum-scale=5.0 for accessibility
+- All interactive elements sized for touch interaction
+- Proper scaling across device types
+
+### 2. Wide Add/Edit Recipe Modal
+
+The recipe creation and editing modal has been expanded to display all fields without requiring horizontal scrolling.
+
+- Modal width increased from 500px to 900px
+- Ingredient rows use five-column grid layout:
   - Ingredient name (3fr)
   - Quantity (1fr)
   - Unit (1fr)
   - Bookmark button (50px)
   - Remove button (auto)
-- All parameter fields are now fully visible without horizontal scrolling
-- Added background color to ingredient rows for better visibility
+- Background color applied to ingredient rows for visual separation
+- Input field padding and spacing optimized for readability
 
-### 3. **Input Validation for Ingredients**
-- **Real-time validation** on form submit
-- **Visual feedback:**
-  - Red border on invalid fields (`.input-error` class)
-  - Error messages displayed below invalid rows
-- **Validation rules:**
-  - Name: Required, non-empty string
-  - Quantity: Required, must be > 0, accepts decimals
-  - Unit: Required, non-empty string
-- **Form-level validation:**
-  - Recipe title required
-  - Instructions required
-  - All ingredient rows validated before submission
-- User-friendly error messages
+### 3. Input Validation for Ingredients
 
-### 4. **Ingredient Checklist (Recipe Detail View)**
-- Interactive checkboxes for each ingredient
-- Click anywhere on the ingredient row to toggle
-- **Checked state:**
-  - Text becomes strikethrough
-  - Opacity reduced for visual distinction
-- **Persistence during session:**
-  - Checked ingredients tracked in `checkedIngredients` Set
-  - Cleared when closing recipe detail modal
-- Perfect for:
-  - Grocery shopping
-  - Cooking preparation
-  - Tracking what you've already prepared
+Validation occurs both during user interaction and on form submission.
 
-### 5. **Recipe Favorites/Bookmarks**
-- **Star button** on each recipe card (☆/⭐)
-- **Toggle functionality:**
-  - Click to add/remove from favorites
-  - Visual feedback with filled/empty star
-- **Filter by favorites:**
-  - "⭐ Favorites" button in filter controls
-  - Shows only favorited recipes
-  - "All Recipes" button to reset filter
-- **Backend support:**
-  - `is_favorite` boolean field in Recipe model
-  - Dedicated `/api/recipes/favorites` endpoint
-  - `PATCH /api/recipes/{id}/favorite` endpoint
+**Visual Feedback:**
+- Red border applied to invalid fields via `.input-error` class
+- Error messages displayed below invalid rows
+- Form-level error alerts displayed before submission
 
-### 6. **Tagging System**
-- **Tag Creation:**
-  - Comma-separated tag input in recipe form
-  - Tags auto-created if they don't exist
-  - Case-insensitive tag matching
-- **Tag Display:**
-  - Tags shown as purple pills on recipe cards
-  - Tags displayed in recipe detail view
-  - Click any tag to filter by it
-- **Tag Filtering:**
-  - Dropdown selector with all existing tags
-  - Filter recipes by selecting a tag
-  - Reset filter by selecting "All Tags"
-- **Backend support:**
-  - Many-to-many relationship (Recipe ↔ Tag)
-  - Association table: `recipe_tags`
-  - Endpoints:
-    - `GET /api/recipes/tags` - List all tags
-    - `GET /api/recipes/tags/{tag_name}` - Get recipes by tag
+**Validation Rules:**
+- Name: Required, non-empty string
+- Quantity: Required, must be greater than zero, accepts decimal values
+- Unit: Required, non-empty string
+- Title: Required for recipe
+- Instructions: Required for recipe
 
-### 7. **Ingredient Bookmarks**
-- **Bookmark button** (☆/★) on each ingredient:
-  - In add/edit recipe modal
-  - In recipe detail view
-- **Visual indicators:**
-  - Empty star (☆) = not bookmarked
-  - Filled star (★) = bookmarked
-  - Purple color when bookmarked
-- **Use cases:**
-  - Mark important ingredients
-  - Filter shopping list by bookmarked items
-  - Quick reference for key ingredients
-- **Backend support:**
-  - `is_bookmarked` boolean field in Ingredient model
-  - `PATCH /api/recipes/ingredients/{id}/bookmark` endpoint
+**Behavior:**
+- Validation triggers on field blur (when user leaves the field)
+- Errors clear immediately as user types
+- All ingredient rows validated before form submission
 
----
+### 4. Ingredient Checklist (Recipe Detail View)
 
-## 📊 Database Schema Changes
+Each recipe detail view includes interactive checkboxes for tracking ingredients during shopping or cooking preparation.
 
-### New/Modified Tables:
+**Functionality:**
+- Checkboxes provided for each ingredient
+- Click anywhere on the ingredient row to toggle the checkbox
+- Checked items display with strikethrough text and reduced opacity
+- Checked state tracked in session using JavaScript Set
+- State cleared when recipe detail modal is closed
 
-**Recipe Table:**
-- Added `is_favorite` (Boolean, default=False)
+**Use Cases:**
+- Grocery shopping list tracking
+- Cooking preparation tracking
+- Inventory management
 
-**Ingredient Table:**
-- Added `is_bookmarked` (Boolean, default=False)
+### 5. Recipe Favorites
 
-**Tag Table (NEW):**
-- `id` (Integer, PK)
-- `name` (String(100), unique, not null)
+Users can mark recipes as favorites for quick access and filtering.
 
-**recipe_tags Association Table (NEW):**
-- `recipe_id` (Integer, FK to recipes.id)
-- `tag_id` (Integer, FK to tags.id)
+**Interface:**
+- Star button displayed on each recipe card
+- Filled star indicates favorited recipe
+- Empty star indicates non-favorited recipe
+- Visual feedback on hover and click
 
----
+**Filtering:**
+- "Favorites" button in filter controls displays only favorited recipes
+- "All Recipes" button resets to full recipe list
+- Filter state preserved when toggling favorite status on individual recipes
 
-## 🔌 New API Endpoints
+**Backend Implementation:**
+- `is_favorite` boolean field stored in Recipe model
+- Dedicated endpoint: `GET /api/recipes/favorites`
+- Toggle endpoint: `PATCH /api/recipes/{id}/favorite`
 
-### Recipe Endpoints:
-- `GET /api/recipes/favorites` - Get favorite recipes
-- `PATCH /api/recipes/{id}/favorite` - Toggle recipe favorite status
-- `GET /api/recipes/tags` - Get all tags
+### 6. Tagging System
+
+Recipes can be organized using tags for efficient categorization and filtering.
+
+**Tag Creation:**
+- Comma-separated tag input field in recipe form
+- Tags created automatically if they do not exist
+- Case-insensitive tag matching prevents duplicates
+
+**Tag Display:**
+- Tags displayed as styled badges on recipe cards
+- Tags visible in recipe detail view
+- Clicking any tag filters the recipe list
+
+**Tag Filtering:**
+- Dropdown selector populated with all existing tags
+- Selecting a tag filters the recipe list immediately
+- "All Tags" option resets the filter
+
+**Backend Implementation:**
+- Tag model with id and name fields
+- Many-to-many relationship between Recipe and Tag
+- Association table: `recipe_tags`
+- Endpoints: `GET /api/recipes/tags` and `GET /api/recipes/tags/{tag_name}`
+
+### 7. Ingredient Bookmarks
+
+Individual ingredients can be bookmarked for emphasis and potential filtering in future features.
+
+**Interface:**
+- Bookmark button (star icon) on each ingredient in add/edit modal
+- Bookmark button also available in recipe detail view
+- Empty star indicates non-bookmarked ingredient
+- Filled star with accent color indicates bookmarked ingredient
+
+**Use Cases:**
+- Marking critical or hard-to-find ingredients
+- Future filtering for focused shopping lists
+- Quick reference for important items
+
+**Backend Implementation:**
+- `is_bookmarked` boolean field stored in Ingredient model
+- Endpoint: `PATCH /api/recipes/ingredients/{ingredient_id}/bookmark`
+
+## Database Schema
+
+### Recipe Table
+- id (Integer, Primary Key)
+- title (String, required)
+- description (Text, optional)
+- instructions (Text, required)
+- image_path (String, optional)
+- is_favorite (Boolean, default=False)
+- created_at (DateTime)
+- updated_at (DateTime)
+
+### Ingredient Table
+- id (Integer, Primary Key)
+- name (String, required)
+- quantity (Float, required)
+- unit (String, required)
+- is_bookmarked (Boolean, default=False)
+- recipe_id (Integer, Foreign Key)
+
+### Tag Table
+- id (Integer, Primary Key)
+- name (String, required, unique)
+
+### Recipe-Tags Association Table
+- recipe_id (Integer, Foreign Key)
+- tag_id (Integer, Foreign Key)
+
+## API Endpoints
+
+### Recipe Endpoints
+- `GET /api/recipes/` - List all recipes
+- `GET /api/recipes/favorites` - List favorited recipes
+- `GET /api/recipes/{id}` - Get single recipe
+- `POST /api/recipes/` - Create recipe
+- `PUT /api/recipes/{id}` - Update recipe
+- `DELETE /api/recipes/{id}` - Delete recipe
+- `PATCH /api/recipes/{id}/favorite` - Toggle favorite status
+
+### Ingredient Endpoints
+- `PATCH /api/recipes/ingredients/{ingredient_id}/bookmark` - Toggle bookmark status
+
+### Tag Endpoints
+- `GET /api/recipes/tags` - List all tags
 - `GET /api/recipes/tags/{tag_name}` - Get recipes by tag
 
-### Ingredient Endpoints:
-- `PATCH /api/recipes/ingredients/{ingredient_id}/bookmark` - Toggle ingredient bookmark
+### Shopping List
+- `POST /api/recipes/shopping-list` - Generate consolidated shopping list
 
----
+## Deployment
 
-## 🎨 CSS Enhancements
-
-### New Components Styled:
-- `.modal__content--wide` - 900px wide modal
-- `.filter-controls` - Filter section styling
-- `.recipe-tags` - Tag pills styling
-- `.recipe-card__favorite` - Star button styling
-- `.recipe-checklist` - Checklist styling
-- `.ingredient-bookmark-btn` - Bookmark button
-- `.validation-error` - Error message styling
-- `.input-error` - Invalid field highlighting
-
-### Responsive Breakpoints:
-- Mobile: ≤640px
-- Tablet: 641px-1024px
-- Desktop: >1024px
-
----
-
-## 🚀 How to Use
-
-### Start the Application:
+Build and start the application:
 ```bash
-cd /home/yaroslav/Documents/prog/software-engineering-toolkit/se-toolkit-hackathon
 docker-compose up --build -d
 ```
 
-Access at: `http://localhost:3000`
-
-### Using New Features:
-
-**Add Recipe with Tags:**
-1. Click "+ Add Recipe"
-2. Fill in title, description, instructions
-3. Add tags: "vegetarian, quick, italian" (comma-separated)
-4. Add ingredients and bookmark important ones (★)
-5. Save recipe
-
-**Filter Recipes:**
-- Click "⭐ Favorites" to see only favorites
-- Use tag dropdown to filter by specific tag
-- Click "All Recipes" to reset filters
-
-**Recipe Detail Checklist:**
-1. Click on any recipe card
-2. Use checkboxes to track ingredients
-3. Toggle ingredient bookmarks (☆ button)
-
-**Create/Edit Recipe:**
-- Modal is now wider (900px)
-- All ingredient fields visible
-- Validation highlights errors
-- Add multiple tags separated by commas
+Access points:
+- Frontend: http://localhost:3000
+- Backend: http://localhost:8000
+- API Documentation: http://localhost:8000/docs
 
 ---
 
-## ✨ User Experience Improvements
-
-1. **Better Mobile Experience:**
-   - Touch-friendly buttons
-   - Stacked layouts on small screens
-   - Readable text at all sizes
-
-2. **Visual Feedback:**
-   - Hover effects on interactive elements
-   - Color changes for active states
-   - Smooth transitions and animations
-
-3. **Accessibility:**
-   - Proper ARIA labels
-   - Keyboard navigation support
-   - High contrast ratios
-   - Maximum scale 5x for zoom
-
-4. **Performance:**
-   - Optimized CSS selectors
-   - Efficient DOM manipulation
-   - Minimal re-renders
-
----
-
-## 🧪 Testing Completed
-
-All features tested and verified:
-- ✅ API endpoints returning correct data
-- ✅ Recipe creation with tags and bookmarks
-- ✅ Favorite toggling
-- ✅ Tag filtering
-- ✅ Frontend rendering
-- ✅ Docker deployment
-- ✅ Responsive design (tested at 375px, 768px, 1920px)
-
----
-
-## 📝 Files Modified
-
-### Backend:
-- `backend/app/models/recipe.py` - Added Tag model, updated Recipe & Ingredient
-- `backend/app/schemas/recipe.py` - Updated schemas with new fields
-- `backend/app/crud/recipe.py` - Added CRUD operations for tags, favorites, bookmarks
-- `backend/app/routers/recipes.py` - Added new API endpoints
-
-### Frontend:
-- `frontend/index.html` - Added filter controls, tags input, wider modal
-- `frontend/css/styles.css` - Added responsive styles, new component styles
-- `frontend/js/api.js` - Added API methods for new features
-- `frontend/js/app.js` - Complete rewrite with all new features
-
----
-
-## 🎯 Next Steps (Optional Future Enhancements)
-
-1. Shopping list with bookmarked-only ingredients filter
-2. Tag management UI (edit/delete tags)
-3. Multiple tag filtering (AND logic)
-4. Export checklist to shopping list
-5. Recipe sharing functionality
-6. Import recipes from URLs
-7. Recipe rating system
-
----
-
-**All requested features have been successfully implemented and tested!** 🎉
+**Last Updated:** April 5, 2026
+**Version:** 2.2.0
