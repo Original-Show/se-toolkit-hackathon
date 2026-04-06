@@ -35,7 +35,7 @@ A simple web app where you save recipes with structured ingredients and difficul
 - **Live Search** — Debounced smooth search that updates results as you type
 - **Difficulty Rating** — 1–5 stars shown on main page, separate from favorites
 - **Cooking Time** — Days/hours/minutes input, smart display on recipe cards
-- **Shopping List Aggregator** — Select multiple recipes → get a list grouped by recipe with checkable ingredients
+- **Shopping List Aggregator** — Select multiple recipes → get a list grouped by recipe with synced checkable ingredients (marking an item in a recipe group auto-checks it in the combined list and vice versa)
 - **AI-Powered Tools:**
   - Generate random recipes with cuisine/dietary preferences
   - Structure raw cooking instructions into clear step-by-step format

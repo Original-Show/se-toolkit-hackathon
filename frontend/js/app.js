@@ -128,12 +128,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${recipe.tags.map(tag => `<span class="recipe-tag" data-tag="${escapeHtml(tag.name)}">${escapeHtml(tag.name)}</span>`).join('')}
                         </div>
                     ` : ''}
-                    <div class="recipe-card__meta-row" style="display:flex;justify-content:space-between;align-items:center;margin-top:0.75rem;font-size:0.85rem;color:var(--color-text);">
+                    <div class="recipe-card__meta-row" style="display:flex;justify-content:space-between;align-items:center;margin-top:0.75rem;flex-wrap:wrap;gap:0.5rem;">
                         <div style="display:flex;align-items:center;gap:0.75rem;">
-                            <span class="difficulty-stars" style="font-size:1.25rem;">${renderDifficultyStars(recipe.difficulty || 1)}</span>
-                            <span style="font-size:0.95rem;font-weight:600;">⏱ ${ct}</span>
+                            <span style="font-size:0.85rem;font-weight:600;color:var(--color-text);">Difficulty:</span>
+                            <span class="difficulty-stars" style="font-size:1.5rem;letter-spacing:2px;">${renderDifficultyStars(recipe.difficulty || 1)}</span>
                         </div>
-                        <span style="font-size:0.8rem;">${recipe.ingredients.length} ing. · ${formatDate(recipe.updated_at)}</span>
+                        <div style="display:flex;align-items:center;gap:1rem;">
+                            <span style="display:flex;align-items:center;gap:0.375rem;font-size:1rem;font-weight:600;color:var(--color-text);">⏱ ${ct}</span>
+                            <span style="font-size:0.8rem;color:var(--color-text-light);">${recipe.ingredients.length} ing. · ${formatDate(recipe.updated_at)}</span>
+                        </div>
                     </div>
                 </div>`;
         }).join('');
@@ -455,8 +458,10 @@ document.addEventListener('DOMContentLoaded', () => {
     async function filterByFavorites() {
         currentFilter = 'favorites';
         renderRecipeList(await api.getFavoriteRecipes());
-        showFavoritesBtn.className = 'btn btn--primary';
-        showAllBtn.className = 'btn btn--secondary';
+        showFavoritesBtn.classList.remove('btn--secondary');
+        showFavoritesBtn.classList.add('btn--primary');
+        showAllBtn.classList.remove('btn--primary');
+        showAllBtn.classList.add('btn--secondary');
         tagFilterSelect.value = '';
     }
 
@@ -464,15 +469,19 @@ document.addEventListener('DOMContentLoaded', () => {
         currentFilter = name;
         renderRecipeList(await api.getRecipesByTag(name));
         tagFilterSelect.value = name;
-        showFavoritesBtn.className = 'btn btn--secondary';
-        showAllBtn.className = 'btn btn--secondary';
+        showFavoritesBtn.classList.remove('btn--primary');
+        showFavoritesBtn.classList.add('btn--secondary');
+        showAllBtn.classList.remove('btn--primary');
+        showAllBtn.classList.add('btn--secondary');
     }
 
     async function showAllRecipes() {
         currentFilter = 'all';
         await loadRecipes();
-        showFavoritesBtn.className = 'btn btn--secondary';
-        showAllBtn.className = 'btn btn--primary';
+        showFavoritesBtn.classList.remove('btn--primary');
+        showFavoritesBtn.classList.add('btn--secondary');
+        showAllBtn.classList.remove('btn--secondary');
+        showAllBtn.classList.add('btn--primary');
         tagFilterSelect.value = '';
     }
 
@@ -500,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
 
-    // ===== Shopping List with Recipe Groups =====
+    // ===== Shopping List with Recipe Groups + Synced Checkboxes =====
     async function handleGenerateShoppingList() {
         const el = document.getElementById('recipeCheckboxes');
         const ids = Array.from(el.querySelectorAll('input:checked')).map(c => parseInt(c.value));
@@ -516,17 +525,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             let html = '<h3 style="margin-bottom:0.75rem;">Shopping List</h3>';
-            result.recipe_groups.forEach(group => {
+
+            // Store ingredient IDs for syncing
+            const allIngredients = new Map(); // name+unit -> [{groupIndex, ingId}]
+
+            result.recipe_groups.forEach((group, gi) => {
                 html += `<div class="shopping-recipe-group">
                     <div class="shopping-recipe-group__header">${escapeHtml(group.recipe_title)}</div>
-                    <ul class="shopping-recipe-group__ingredients">
-                        ${group.ingredients.map(ing => `
-                            <li class="shopping-recipe-group__ingredient">
-                                <input type="checkbox">
-                                <span>${ing.quantity} ${escapeHtml(ing.unit)} ${escapeHtml(ing.name)}</span>
-                            </li>`).join('')}
-                    </ul>
-                </div>`;
+                    <ul class="shopping-recipe-group__ingredients" data-group="${gi}">`;
+
+                group.ingredients.forEach(ing => {
+                    const key = `${ing.name.toLowerCase().trim()}:${ing.unit.toLowerCase().trim()}`;
+                    if (!allIngredients.has(key)) allIngredients.set(key, []);
+                    allIngredients.get(key).push({ groupIndex: gi, ingId: ing.id, elKey: `g${gi}_${ing.id}` });
+
+                    html += `<li class="shopping-recipe-group__ingredient" data-group="${gi}" data-ing-id="${ing.id}" data-key="${key}">
+                        <input type="checkbox">
+                        <span>${ing.quantity} ${escapeHtml(ing.unit)} ${escapeHtml(ing.name)}</span>
+                    </li>`;
+                });
+
+                html += `</ul></div>`;
             });
 
             // Combined
@@ -534,23 +553,46 @@ document.addEventListener('DOMContentLoaded', () => {
             if (combined.items?.length) {
                 html += `<div class="shopping-recipe-group" style="margin-top:1rem;border-color:var(--color-primary);">
                     <div class="shopping-recipe-group__header" style="background:var(--color-primary);color:#fff;">📋 Combined</div>
-                    <ul class="shopping-recipe-group__ingredients">
-                        ${combined.items.map(i => `
-                            <li class="shopping-recipe-group__ingredient">
-                                <input type="checkbox">
-                                <span>${i.quantity} ${escapeHtml(i.unit)} ${escapeHtml(i.name)}</span>
-                            </li>`).join('')}
-                    </ul>
-                </div>`;
+                    <ul class="shopping-recipe-group__ingredients" data-group="combined">`;
+
+                combined.items.forEach((item, ci) => {
+                    const key = `${item.name.toLowerCase().trim()}:${item.unit.toLowerCase().trim()}`;
+                    html += `<li class="shopping-recipe-group__ingredient" data-group="combined" data-ci="${ci}" data-key="${key}">
+                        <input type="checkbox">
+                        <span>${item.quantity} ${escapeHtml(item.unit)} ${escapeHtml(item.name)}</span>
+                    </li>`;
+                });
+
+                html += `</ul></div>`;
             }
 
             shoppingListResult.innerHTML = html;
 
-            shoppingListResult.querySelectorAll('.shopping-recipe-group__ingredient').forEach(li => {
+            // Synced checkbox logic
+            const checkboxes = shoppingListResult.querySelectorAll('.shopping-recipe-group__ingredient');
+            checkboxes.forEach(li => {
                 const cb = li.querySelector('input[type="checkbox"]');
-                cb.addEventListener('change', () => li.classList.toggle('checked', cb.checked));
+                const key = li.dataset.key;
+
+                cb.addEventListener('change', () => {
+                    li.classList.toggle('checked', cb.checked);
+                    // Sync all other items with the same key
+                    shoppingListResult.querySelectorAll(`[data-key="${key}"]`).forEach(other => {
+                        if (other !== li) {
+                            const otherCb = other.querySelector('input[type="checkbox"]');
+                            if (otherCb) {
+                                otherCb.checked = cb.checked;
+                                other.classList.toggle('checked', cb.checked);
+                            }
+                        }
+                    });
+                });
+
                 li.addEventListener('click', e => {
-                    if (e.target.tagName !== 'INPUT') { cb.checked = !cb.checked; cb.dispatchEvent(new Event('change')); }
+                    if (e.target.tagName !== 'INPUT') {
+                        cb.checked = !cb.checked;
+                        cb.dispatchEvent(new Event('change'));
+                    }
                 });
             });
         } catch (e) { alert(`Error: ${e.message}`); }
