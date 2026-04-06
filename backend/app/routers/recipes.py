@@ -10,6 +10,7 @@ from app.schemas.recipe import (
     RecipeUpdate,
     RecipeResponse,
     ShoppingListResponse,
+    ShoppingListWithRecipesResponse,
     TagResponse,
     IngredientUpdate,
 )
@@ -137,6 +138,13 @@ def generate_shopping_list(recipe_ids: List[int], db: Session = Depends(get_db))
     """Generate a consolidated shopping list from multiple recipes."""
     items = crud.generate_shopping_list(db, recipe_ids)
     return {"recipes": recipe_ids, "items": items}
+
+
+@router.post("/shopping-list-with-recipes", response_model=ShoppingListWithRecipesResponse)
+def generate_shopping_list_with_recipes(recipe_ids: List[int], db: Session = Depends(get_db)):
+    """Generate a shopping list grouped by recipe with separators."""
+    groups = crud.generate_shopping_list_with_recipes(db, recipe_ids)
+    return {"recipe_groups": groups}
 
 
 # --- Image Endpoints ---

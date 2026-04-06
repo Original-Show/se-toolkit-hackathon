@@ -78,10 +78,30 @@ const api = {
         body: recipeIds,
     }),
 
+    generateShoppingListWithRecipes: (recipeIds) => fetchJSON('/recipes/shopping-list-with-recipes', {
+        method: 'POST',
+        body: recipeIds,
+    }),
+
     // LLM
     findRandomRecipe: (data) => fetchJSON('/llm/find-recipe', {
         method: 'POST',
         body: data,
+    }),
+
+    getStructuredCookingSteps: (recipeText) => fetchJSON('/llm/structured-cooking-steps', {
+        method: 'POST',
+        body: recipeText,
+    }),
+
+    grammarCheck: (text) => fetchJSON('/llm/grammar-check', {
+        method: 'POST',
+        body: text,
+    }),
+
+    unitCheck: (ingredientsText) => fetchJSON('/llm/unit-check', {
+        method: 'POST',
+        body: ingredientsText,
     }),
 
     registerLLMKey: (data) => fetchJSON('/llm/keys', {

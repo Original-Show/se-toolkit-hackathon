@@ -70,6 +70,8 @@ def create_recipe(db: Session, recipe_data: RecipeCreate) -> Recipe:
         description=recipe_data.description,
         instructions=recipe_data.instructions,
         is_favorite=recipe_data.is_favorite,
+        difficulty=recipe_data.difficulty,
+        cooking_time_minutes=recipe_data.cooking_time_minutes,
     )
     for ing_data in recipe_data.ingredients:
         ingredient = Ingredient(
@@ -98,10 +100,18 @@ def update_recipe(db: Session, recipe_id: int, recipe_data: RecipeUpdate) -> Rec
     if not db_recipe:
         return None
 
-    db_recipe.title = recipe_data.title
-    db_recipe.description = recipe_data.description
-    db_recipe.instructions = recipe_data.instructions
-    db_recipe.is_favorite = recipe_data.is_favorite
+    if recipe_data.title is not None:
+        db_recipe.title = recipe_data.title
+    if recipe_data.description is not None:
+        db_recipe.description = recipe_data.description
+    if recipe_data.instructions is not None:
+        db_recipe.instructions = recipe_data.instructions
+    if recipe_data.is_favorite is not None:
+        db_recipe.is_favorite = recipe_data.is_favorite
+    if recipe_data.difficulty is not None:
+        db_recipe.difficulty = recipe_data.difficulty
+    if recipe_data.cooking_time_minutes is not None:
+        db_recipe.cooking_time_minutes = recipe_data.cooking_time_minutes
 
     if recipe_data.ingredients is not None:
         db.query(Ingredient).filter(Ingredient.recipe_id == recipe_id).delete()
@@ -171,11 +181,11 @@ def generate_shopping_list(db: Session, recipe_ids: list[int], bookmarked_only: 
         recipe = get_recipe(db, recipe_id)
         if not recipe:
             continue
-        
+
         ingredients = recipe.ingredients
         if bookmarked_only:
             ingredients = [ing for ing in ingredients if ing.is_bookmarked]
-        
+
         for ingredient in ingredients:
             key = (ingredient.name.lower(), ingredient.unit.lower())
             if key in aggregated:
@@ -187,6 +197,29 @@ def generate_shopping_list(db: Session, recipe_ids: list[int], bookmarked_only: 
                     "unit": ingredient.unit,
                 }
     return list(aggregated.values())
+
+
+def generate_shopping_list_with_recipes(db: Session, recipe_ids: list[int], bookmarked_only: bool = False) -> list[dict]:
+    """Return shopping list grouped by recipe with separators."""
+    result = []
+    for recipe_id in recipe_ids:
+        recipe = get_recipe(db, recipe_id)
+        if not recipe:
+            continue
+
+        ingredients = recipe.ingredients
+        if bookmarked_only:
+            ingredients = [ing for ing in ingredients if ing.is_bookmarked]
+
+        result.append({
+            "recipe_id": recipe.id,
+            "recipe_title": recipe.title,
+            "ingredients": [
+                {"id": ing.id, "name": ing.name, "quantity": ing.quantity, "unit": ing.unit}
+                for ing in ingredients
+            ],
+        })
+    return result
 
 
 # --- LLM Key Management ---

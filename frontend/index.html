@@ -97,6 +97,40 @@
                     <span class="form__hint">Enter tags separated by commas</span>
                 </div>
 
+                <!-- Difficulty -->
+                <div class="form__group">
+                    <label for="recipeDifficulty" class="form__label">Difficulty</label>
+                    <select id="recipeDifficulty" class="form__input">
+                        <option value="1">★ — Easy</option>
+                        <option value="2">★★ — Simple</option>
+                        <option value="3">★★★ — Medium</option>
+                        <option value="4">★★★★ — Hard</option>
+                        <option value="5">★★★★★ — Expert</option>
+                    </select>
+                </div>
+
+                <!-- Cooking Time -->
+                <div class="form__group">
+                    <label class="form__label">Cooking Time</label>
+                    <div class="cooking-time-input">
+                        <div class="cooking-time-input__field">
+                            <label>Days</label>
+                            <input type="number" id="cookingDays" min="0" placeholder="0">
+                        </div>
+                        <span class="cooking-time-input__separator">:</span>
+                        <div class="cooking-time-input__field">
+                            <label>Hours</label>
+                            <input type="number" id="cookingHours" min="0" max="23" placeholder="0">
+                        </div>
+                        <span class="cooking-time-input__separator">:</span>
+                        <div class="cooking-time-input__field">
+                            <label>Minutes</label>
+                            <input type="number" id="cookingMinutes" min="0" max="59" placeholder="0">
+                        </div>
+                    </div>
+                    <span class="form__hint">Leave all empty if cooking time is not applicable</span>
+                </div>
+
                 <!-- Image Upload -->
                 <div class="form__group">
                     <label class="form__label">Recipe Image</label>

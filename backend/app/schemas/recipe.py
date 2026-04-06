@@ -47,6 +47,8 @@ class RecipeBase(BaseModel):
     description: Optional[str] = None
     instructions: str = Field(..., min_length=1)
     is_favorite: bool = Field(default=False)
+    difficulty: int = Field(default=1, ge=1, le=5)
+    cooking_time_minutes: Optional[int] = Field(default=None, ge=0)
     tags: Optional[List[str]] = None
 
 
@@ -54,7 +56,14 @@ class RecipeCreate(RecipeBase):
     ingredients: List[IngredientCreate]
 
 
-class RecipeUpdate(RecipeBase):
+class RecipeUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    instructions: Optional[str] = None
+    is_favorite: Optional[bool] = None
+    difficulty: Optional[int] = Field(default=None, ge=1, le=5)
+    cooking_time_minutes: Optional[int] = Field(default=None, ge=0)
+    tags: Optional[List[str]] = None
     ingredients: Optional[List[IngredientCreate]] = None
 
 
@@ -76,9 +85,26 @@ class ShoppingListItem(BaseModel):
     unit: str
 
 
+class ShoppingListIngredientItem(BaseModel):
+    id: int
+    name: str
+    quantity: float
+    unit: str
+
+
+class ShoppingListRecipeGroup(BaseModel):
+    recipe_id: int
+    recipe_title: str
+    ingredients: List[ShoppingListIngredientItem]
+
+
 class ShoppingListResponse(BaseModel):
     recipes: List[int]
     items: List[ShoppingListItem]
+
+
+class ShoppingListWithRecipesResponse(BaseModel):
+    recipe_groups: List[ShoppingListRecipeGroup]
 
 
 # --- LLM Key Management ---

@@ -23,6 +23,8 @@ class Recipe(Base):
     instructions = Column(Text, nullable=False)
     image_path = Column(String(500), nullable=True)
     is_favorite = Column(Boolean, default=False)
+    difficulty = Column(Integer, default=1)  # 1-5 difficulty rating
+    cooking_time_minutes = Column(Integer, nullable=True)  # total cooking time in minutes
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
